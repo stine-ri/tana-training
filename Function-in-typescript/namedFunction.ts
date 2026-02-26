@@ -10,6 +10,7 @@ function addNum(a: number, b: number): number {
 }
 const sum = add(5, 10);
 console.log(sum); 
+
 //example 3: Named function with optional parameters
 function greetFunction(name?: string): void {
     if (name) {
