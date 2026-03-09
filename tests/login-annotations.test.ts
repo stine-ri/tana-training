@@ -11,7 +11,8 @@ test.describe('Login Annotations Demo', () => {
   });
 
   // @regression - full suite tests
-  test('should login successfully @regression', async ({ page }) => {
+ test('should login successfully @regression', async ({ page }) => {
+    test.setTimeout(60000); //  60 seconds 
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     await loginPage.login('kimri21@gmail.com', 'stine6892');

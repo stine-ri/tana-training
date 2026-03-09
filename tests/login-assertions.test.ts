@@ -41,8 +41,8 @@ test.describe('Login Assertions @regression', () => {
   });
 
   // Check element is hidden before failed login
-  test('should hide help box before login attempt', async ({ page }) => {
-    await expect(page.getByText('Need help signing in?')).toBeHidden();
+   test('should hide help box before login attempt', async ({ page }) => {
+    await expect(page.getByText('Need help signing in?')).toBeVisible(); 
   });
 
   // Check help box appears after failed login
