@@ -1,9 +1,15 @@
 {
   "devDependencies": {
+    "@cucumber/cucumber": "^12.7.0",
+    "@cucumber/pretty-formatter": "^3.2.0",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.5",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
-  "scripts": {}
+  "scripts": {
+    "test:login": "cucumber-js features/login.feature",
+    "test:bdd": "cucumber-js features/"
+  }
 }
