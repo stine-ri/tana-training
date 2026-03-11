@@ -16,29 +16,22 @@ Given('I have invalid login credentials', async (dataTable) => {
   console.log('Invalid credentials set:', credentials.username);
 });
 
-When('I send a POST request to {string} with my credentials', async (url) => {
+When('I send a POST request to {string} with my credentials', async function (url) {
   const request = await playwrightRequest.newContext();
-  
+
   const response = await request.post(url, {
     data: {
       username: credentials.username,
       password: credentials.password
     },
-    headers: {
-      'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' }
   });
-  
-  responseStatus = response.status();
-  responseBody = await response.json();
-  
-  console.log('Response Status:', responseStatus);
-  console.log('Response Body:', JSON.stringify(responseBody, null, 2));
-});
 
-Then('the response status code should be {int}', async (expectedStatus) => {
-  expect(responseStatus).toBe(expectedStatus);
-  console.log(`✓ Status code ${expectedStatus} verified`);
+  this.statusCode = response.status();  
+  responseBody = await response.json();
+
+  console.log('Response Status:', this.statusCode);
+  console.log('Response Body:', JSON.stringify(responseBody, null, 2));
 });
 
 Then('the response should contain an access token', async () => {

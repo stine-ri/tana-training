@@ -11,5 +11,8 @@
   "scripts": {
     "test:login": "cucumber-js features/login.feature",
     "test:bdd": "cucumber-js features/"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
   }
 }

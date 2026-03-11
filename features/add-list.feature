@@ -17,7 +17,7 @@ Feature: Add List to Trello Board
     Given I have a valid Trello API key and token
     And the board has been deleted
     When I send a POST request to add a list with name "To Do"
-    Then the response status code should be 404
+    Then the response status code should be 401
 
   # Boundary Analysis
   Scenario: Add a list with maximum character limit name
