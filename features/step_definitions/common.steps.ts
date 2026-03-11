@@ -1,4 +1,4 @@
-import { Given, Then } from '@cucumber/cucumber'; //Given, then cucumber functions for defining steps, they link plain english steps in feature files to the actual code that executes those steps
+import { Given, Then } from '@cucumber/cucumber'; //Given, then  are cucumber functions for defining steps, they link plain english steps in feature files to the actual code that executes those steps
 import { request } from '@playwright/test';  //playwright's request function allows us to create a new API request context, which we can use to send HTTP requests to the Trello API. This is essential for our API testing, as it enables us to interact with the Trello API endpoints and validate their responses in our test scenarios.
 import { TrelloAPI } from '../../tests/api/TrelloAPI';
 import * as dotenv from 'dotenv'; //dotenv is a zero-dependency module that loads environment variables from a .env file into process.env. This allows us to keep sensitive information like API keys and tokens out of our codebase and easily manage them in a separate file. By using dotenv, we can access these environment variables in our test code without hardcoding them, enhancing security and flexibility.
@@ -34,7 +34,9 @@ Given('the board has been deleted', async function () {
   const list = await this.trelloAPI.createList(this.boardId, 'List on deleted board');
   this.listId = list.id;
   await this.trelloAPI.deleteBoard(this.boardId);
-});// This sets up the negative path — it creates a board and list, then immediately deletes the board. This simulates the real-world scenario of trying to add something to a board that no longer exists. The listId is kept so the card step has something to send to Trello, even though the board is gone.
+});// This sets up the negative path- it creates a board and list, then immediately deletes the board.
+//  This simulates the real-world scenario of trying to add something to a board that no longer exists. 
+// The listId is kept so the card step has something to send to Trello, even though the board is gone.
 
 // Shared Assertion 
 Then('the response status code should be {int}', function (expectedStatus: number) {
@@ -43,4 +45,4 @@ Then('the response status code should be {int}', function (expectedStatus: numbe
   }
 }); /*{int} is a Cucumber parameter — it captures the number from the feature file (e.g. 200, 404) and passes it as expectedStatus
 this.statusCode was set in the When step of each feature's step file
-If they don't match, throwing an Error is how you fail a Cucumber step — Cucumber catches it and marks the step red*/
+If they don't match, throwing an Error is how you fail a Cucumber step, Cucumber catches it and marks the step red*/

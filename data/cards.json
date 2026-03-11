@@ -1,0 +1,22 @@
+[
+  { "description": "Normal card name", "value": "Fix login bug" },
+  { "description": "Empty string", "value": "" },
+  { "description": "Whitespace only", "value": "   " },
+  { "description": "Very long string (300 chars)", "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
+  { "description": "SQL injection attempt", "value": "'; DROP TABLE cards; --" },
+  { "description": "HTML injection", "value": "<h1>Hacked</h1>" },
+  { "description": "Script injection (XSS)", "value": "<script>alert('xss')</script>" },
+  { "description": "Unicode characters", "value": "日本語テスト" },
+  { "description": "Emoji", "value": "🔥💀🎉🚀" },
+  { "description": "Null-like string", "value": "null" },
+  { "description": "Undefined-like string", "value": "undefined" },
+  { "description": "Newline characters", "value": "line1\nline2\nline3" },
+  { "description": "Tab characters", "value": "col1\tcol2\tcol3" },
+  { "description": "Curly braces", "value": "{\"key\": \"value\"}" },
+  { "description": "Slash and backslash", "value": "path/to/something\\else" },
+  { "description": "Numbers only", "value": "1234567890" },
+  { "description": "Boolean-like string", "value": "true" },
+  { "description": "Single quote", "value": "it's a test" },
+  { "description": "Double quotes", "value": "\"quoted value\"" },
+  { "description": "Mixed special characters", "value": "!@#$%^&*()_+-=[]{}|;':\",./<>?" }
+]

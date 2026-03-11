@@ -35,5 +35,4 @@ Feature: User Login
         When-action
         and- additional precondition or action, some more of previous step
         Then-expected outcome
-           
 */

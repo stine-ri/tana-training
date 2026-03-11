@@ -10,7 +10,7 @@ async function getTrelloUsername(): Promise<void> {
   );
 
   const data = await response.json() as { username: string };
-  console.log(`✅ Trello Username: ${data.username}`);// logs the username to the console, confirming that the API key and token are valid and working correctly
+  console.log(` Trello Username: ${data.username}`);// logs the username to the console, confirming that the API key and token are valid and working correctly
 }
 
 getTrelloUsername();
