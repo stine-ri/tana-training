@@ -50,11 +50,11 @@ TrelloAPI.ts       →   makes the actual HTTP calls to Trello
 step definitions   →   call trelloAPI.createBoard() etc. and store the response*/
 
   async createBoard(name: string): Promise<any> {
-    const response = await this.request.post(
-      `${this.baseUrl}/boards/?${this.authParams}&name=${encodeURIComponent(name)}`
-    );
-    return this.handleResponse(response);
-  }
+  const response = await this.request.post(
+    `${this.baseUrl}/boards/?${this.authParams}&name=${encodeURIComponent(name)}&defaultLists=false&prefs_permissionLevel=public`
+  );
+  return this.handleResponse(response);
+}
 
   async createList(boardId: string, name: string): Promise<any> {
     const response = await this.request.post(

@@ -1,27 +1,31 @@
 {
   "devDependencies": {
     "@cucumber/cucumber": "^12.7.0",
+    "@cucumber/html-formatter": "^23.0.0",
     "@cucumber/pretty-formatter": "^3.2.0",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.5",
+    "multiple-cucumber-html-reporter": "^3.10.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
- "scripts": {
-  "test:login": "cucumber-js features/login.feature",
-  "test:bdd": "cucumber-js features/",
-  "test:smoke": "cucumber-js --tags @smoke",
-  "test:regression": "cucumber-js --tags @regression",
-  "test:api": "cucumber-js --tags @api",
-  "test:happy": "cucumber-js --tags @happy-path",
-  "test:negative": "cucumber-js --tags @negative-path",
-  "test:boundary": "cucumber-js --tags @boundary",
-  "test:data-driven": "cucumber-js --tags @data-driven",
-  "test:trello": "cucumber-js --tags @trello"
-},
+  "scripts": {
+    "test:login": "cucumber-js features/login.feature",
+    "test:bdd": "cucumber-js features/",
+    "test:smoke": "cucumber-js --tags @smoke",
+    "test:regression": "cucumber-js --tags @regression",
+    "test:api": "cucumber-js --tags @api",
+    "test:happy": "cucumber-js --tags @happy-path",
+    "test:negative": "cucumber-js --tags @negative-path",
+    "test:boundary": "cucumber-js --tags @boundary",
+    "test:data-driven": "cucumber-js --tags @data-driven",
+    "test:trello": "cucumber-js --tags @trello",
+    "auth:trello": "npx ts-node tests/auth/trello-login.ts",
+    "cleanup:trello": "npx tsx tests/utils/cleanup-boards.ts",
+    "test:report": "cucumber-js features/"
+  },
   "dependencies": {
     "dotenv": "^17.3.1"
   }
 }
-

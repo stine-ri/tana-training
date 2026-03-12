@@ -13,33 +13,44 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'https://www.quisells.com',  // no need to repeat URL in every test
+    baseURL: 'https://trello.com',
+    // Changed from quisells.com to trello.com — all page.goto('/boards') calls
+    // will automatically prefix with this URL
+
+    storageState: 'tests/auth/storageState.json',
+    // Reuses the saved login session from pnpm auth:trello
+    // This means every test starts already logged into Trello
+    // without having to go through the login flow every time
 
     screenshot: 'on',           // screenshot every step
     trace: 'on',                // full trace viewer
     video: 'on',                // video recording of every test
-    // Slow motion, uncomment to slow down tests for debugging
-    launchOptions: { slowMo: 1000 },
+
+    launchOptions: { slowMo: 500 },
+    // Reduced from 1000ms to 500ms — fast enough to see what's happening
+    // but not so slow that tests take forever
   },
 
   projects: [
-  {
-    name: 'chromium',
-    use: { 
-      ...devices['Desktop Chrome'],
-      contextOptions: {
-        // disable password manager and autofill
-        storageState: undefined,
+    {
+      name: 'chromium',
+      use: { 
+        ...devices['Desktop Chrome'],
+        // storageState is inherited from the global use config above
+        // so we removed the storageState: undefined override that was blocking it
+        launchOptions: {
+          args: [
+            '--disable-save-password-bubble',
+            '--disable-features=PasswordManagerEnabled'
+          ]
+        }
       },
-      launchOptions: {
-        args: ['--disable-save-password-bubble', '--disable-features=PasswordManagerEnabled']
-      }
     },
-  },
-  {
+    {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-  },
+      // Firefox will also use the storageState from the global config
+    },
     // webkit disabled - not supported on this Ubuntu setup
   ],
 });

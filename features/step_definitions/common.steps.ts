@@ -1,48 +1,148 @@
-import { Given, Then } from '@cucumber/cucumber'; //Given, then  are cucumber functions for defining steps, they link plain english steps in feature files to the actual code that executes those steps
-import { request } from '@playwright/test';  //playwright's request function allows us to create a new API request context, which we can use to send HTTP requests to the Trello API. This is essential for our API testing, as it enables us to interact with the Trello API endpoints and validate their responses in our test scenarios.
+import { Given, Then, When, After } from '@cucumber/cucumber';
+import { request } from '@playwright/test';
 import { TrelloAPI } from '../../tests/api/TrelloAPI';
-import * as dotenv from 'dotenv'; //dotenv is a zero-dependency module that loads environment variables from a .env file into process.env. This allows us to keep sensitive information like API keys and tokens out of our codebase and easily manage them in a separate file. By using dotenv, we can access these environment variables in our test code without hardcoding them, enhancing security and flexibility.
+import * as dotenv from 'dotenv';
+import { chromium } from '@playwright/test';
+import { BoardPage } from '../../pages/boardPage';
+import * as path from 'path';
+import fs from 'fs';
 
-dotenv.config(); // load the .env files, this line initializes the dotenv configuration, allowing us to access the environment variables defined in our .env file throughout our test code using process.env.VARIABLE_NAME. This is crucial for securely managing sensitive information like API keys and tokens without hardcoding them in our codebase.
+dotenv.config();
 
-// Shared Setup 
+// ─── Shared Setup ────────────────────────────────────────────────────────────
 
+// Creates the TrelloAPI instance with credentials from .env
+// Stored on `this` so every subsequent step in the scenario can use it
 Given('I have a valid Trello API key and token', async function () {
-  const apiKey = process.env.TRELLO_API_KEY!; // the ! tells TypeScript that we are sure this variable will be defined, since we have it in our .env file. This allows us to securely access the API key without hardcoding it in our codebase, and it ensures that our tests can run with the correct credentials.
+  const apiKey = process.env.TRELLO_API_KEY!;
   const apiToken = process.env.TRELLO_TOKEN!;
-  const requestContext = await request.newContext(); //request.newContext() creates a new API request context that we can use to send HTTP requests to the Trello API. This context allows us to manage cookies, headers, and other settings for our API requests, making it easier to interact with the Trello API in our test scenarios.
-  this.trelloAPI = new TrelloAPI(requestContext, apiKey, apiToken); // creates your service object and stores it on this. Using this is critical here — it makes trelloAPI available to every subsequent step in the same scenario
+  const requestContext = await request.newContext();
+  this.trelloAPI = new TrelloAPI(requestContext, apiKey, apiToken);
 });
 
+// Creates a board and saves the boardId for list/card steps to use
 Given('a board exists with a valid board id', async function () {
   const board = await this.trelloAPI.createBoard('Test Board for List');
   this.boardId = board.id;
-});//This is a precondition step, it runs real API calls to set up the state your test needs: Calls createBoard on your service class
-// The response (board) is a JSON object from Trello containing an id, name, etc.
-// this.boardId = board.id saves the board's ID so the When step can use it later
+});
 
+// Creates a board + list and saves both IDs for card steps to use
 Given('a list exists with a valid list id', async function () {
   const board = await this.trelloAPI.createBoard('Test Board for Card');
   this.boardId = board.id;
   const list = await this.trelloAPI.createList(this.boardId, 'Test List for Card');
   this.listId = list.id;
-});// Does two API calls: creates a board, then creates a list on that board. Saves both IDs for later steps to use when creating a card or deleting the board
+});
 
+// Creates a board + list then immediately deletes the board
+// Used for negative path tests — simulates trying to add to a deleted board
 Given('the board has been deleted', async function () {
   const board = await this.trelloAPI.createBoard('Board To Delete');
   this.boardId = board.id;
   const list = await this.trelloAPI.createList(this.boardId, 'List on deleted board');
   this.listId = list.id;
   await this.trelloAPI.deleteBoard(this.boardId);
-});// This sets up the negative path- it creates a board and list, then immediately deletes the board.
-//  This simulates the real-world scenario of trying to add something to a board that no longer exists. 
-// The listId is kept so the card step has something to send to Trello, even though the board is gone.
+});
 
-// Shared Assertion 
+// ─── Hybrid Steps ─────────────────────────────────────────────────────────────
+
+// Creates a public board + list via API for the hybrid UI test
+Given('a board and list are created via API', async function () {
+  const board = await this.trelloAPI.createBoard('Hybrid Test Board');
+  this.boardId = board.id;
+  this.boardUrl = board.url;
+  const list = await this.trelloAPI.createList(this.boardId, 'Hybrid Test List');
+  this.listId = list.id;
+});
+
+// Creates a card via API and stores the card name for UI validation
+When('I create a card via API with name {string}', async function (cardName: string) {
+  const card = await this.trelloAPI.createCard(this.listId, cardName);
+  this.cardName = card.name;
+  this.statusCode = 200;
+});
+
+// Opens a real browser, loads the saved session, and navigates to the board
+Then('I navigate to the board in the browser', async function () {
+  const storagePath = path.join(process.cwd(), 'tests/auth/storageState.json');
+
+  if (!fs.existsSync(storagePath)) {
+    throw new Error('No session found. Run pnpm auth:trello first');
+  }
+
+  this.browser = await chromium.launch({
+    headless: false,
+    slowMo: 300,
+  });
+
+  const context = await this.browser.newContext({
+    storageState: storagePath,
+  });
+
+  this.page = await context.newPage();
+  this.boardPage = new BoardPage(this.page);
+
+  await this.boardPage.navigateToBoard(this.boardUrl);
+
+  const url = this.page.url();
+  if (url.includes('login')) {
+    console.log('⚠️  Redirected to login — session may have expired');
+    await this.page.screenshot({ path: 'login-redirect.png' });
+  } else {
+    console.log('✅ Successfully loaded board with saved session');
+  }
+
+  await this.page.screenshot({ path: 'debug-board.png' });
+});
+
+// Uses BoardPage POM to assert the card is visible on the board
+Then('the card {string} should be visible on the board', async function (cardName: string) {
+  const currentUrl = this.page.url();
+  const pageContent = await this.page.content();
+
+  if (currentUrl.includes('login') || pageContent.includes('Sign up to see this board')) {
+    await this.page.screenshot({ path: 'login-blocking-card.png' });
+    throw new Error(`Cannot see card — blocked by login page. Current URL: ${currentUrl}`);
+  }
+
+  try {
+    await this.boardPage.waitForCard(cardName);
+    const isVisible = await this.boardPage.validateCardIsVisible(cardName);
+    if (!isVisible) {
+      await this.page.screenshot({ path: 'card-not-visible.png' });
+      throw new Error(`Card "${cardName}" was not visible on the board`);
+    }
+    console.log(`✓ Card "${cardName}" is visible on the Trello board UI`);
+  } catch (error) {
+    await this.page.screenshot({ path: 'board-state.png' });
+    const bodyText = await this.page.textContent('body');
+    console.log('Page text content:', bodyText?.substring(0, 500));
+    throw error;
+  } finally {
+    await this.browser.close();
+  }
+});
+
+// ─── Shared Assertion ────────────────────────────────────────────────────────
+
+// Checks the status code set by any When step against the expected value
 Then('the response status code should be {int}', function (expectedStatus: number) {
   if (this.statusCode !== expectedStatus) {
     throw new Error(`Expected status ${expectedStatus} but got ${this.statusCode}`);
   }
-}); /*{int} is a Cucumber parameter — it captures the number from the feature file (e.g. 200, 404) and passes it as expectedStatus
-this.statusCode was set in the When step of each feature's step file
-If they don't match, throwing an Error is how you fail a Cucumber step, Cucumber catches it and marks the step red*/
+});
+
+// ─── Cleanup ─────────────────────────────────────────────────────────────────
+
+// Runs automatically after every scenario to delete any boards created during the test
+// Prevents hitting Trello's 10 board free plan limit
+After(async function () {
+  if (this.boardId && this.trelloAPI) {
+    try {
+      await this.trelloAPI.deleteBoard(this.boardId);
+      console.log(`🧹 Cleaned up board: ${this.boardId}`);
+    } catch {
+      // Board may already be deleted in negative path tests — ignore
+    }
+  }
+});
