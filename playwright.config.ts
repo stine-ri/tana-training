@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-
+import * as fs from 'fs';
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -17,7 +17,9 @@ export default defineConfig({
     // Changed from quisells.com to trello.com — all page.goto('/boards') calls
     // will automatically prefix with this URL
 
-    storageState: 'tests/auth/storageState.json',
+    storageState: fs.existsSync('tests/auth/storageState.json')
+  ? 'tests/auth/storageState.json'
+  : undefined,
     // Reuses the saved login session from pnpm auth:trello
     // This means every test starts already logged into Trello
     // without having to go through the login flow every time

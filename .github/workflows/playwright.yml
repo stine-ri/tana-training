@@ -1,27 +1,47 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm install -g pnpm && pnpm install
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
-    - name: Run Playwright tests
-      run: pnpm exec playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm install -g pnpm && pnpm install
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Restore Trello session
+        run: |
+          mkdir -p tests/auth
+          echo "${{ secrets.STORAGE_STATE }}" | base64 --decode > tests/auth/storageState.json
+        # This decodes the base64 session you saved as a GitHub Secret
+        # It recreates storageState.json so Playwright thinks you're already logged in
+
+      - name: Run Playwright tests
+        run: pnpm exec playwright test
+        env:
+          CI: true
+          # Add any other env vars your tests need here e.g:
+          # TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          # TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
