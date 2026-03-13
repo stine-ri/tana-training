@@ -1,12 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as fs from 'fs';
+
 export default defineConfig({
   testDir: './tests',
+
+  testIgnore: process.env.CI
+    ? ['**/login*.test.ts', '**/login.test.ts']
+    : [],
+  // Skips all login tests in CI — they require manual auth via Chrome profile
+  // and Google blocks automated login attempts in headless environments
+
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  
+
   reporter: [
     ['html'],   // full HTML report with screenshots and traces
     ['list'],   // shows results in terminal as they run
@@ -14,12 +22,11 @@ export default defineConfig({
 
   use: {
     baseURL: 'https://trello.com',
-    // Changed from quisells.com to trello.com — all page.goto('/boards') calls
-    // will automatically prefix with this URL
+    // All page.goto('/boards') calls will automatically prefix with this URL
 
     storageState: fs.existsSync('tests/auth/storageState.json')
-  ? 'tests/auth/storageState.json'
-  : undefined,
+      ? 'tests/auth/storageState.json'
+      : undefined,
     // Reuses the saved login session from pnpm auth:trello
     // This means every test starts already logged into Trello
     // without having to go through the login flow every time
@@ -29,17 +36,16 @@ export default defineConfig({
     video: 'on',                // video recording of every test
 
     launchOptions: { slowMo: process.env.CI ? 0 : 500 },
-    // Reduced from 1000ms to 500ms — fast enough to see what's happening
-    // but not so slow that tests take forever
+    // CI: no slow motion for speed
+    // Local: 500ms so you can see what's happening
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // storageState is inherited from the global use config above
-        // so we removed the storageState: undefined override that was blocking it
         launchOptions: {
           args: [
             '--disable-save-password-bubble',
@@ -51,7 +57,7 @@ export default defineConfig({
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-      // Firefox will also use the storageState from the global config
+      // Firefox also uses the storageState from the global config
     },
     // webkit disabled - not supported on this Ubuntu setup
   ],
