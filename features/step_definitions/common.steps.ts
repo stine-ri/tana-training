@@ -83,6 +83,7 @@ Then('I navigate to the board in the browser', async function () {
   this.boardPage = new BoardPage(this.page);
 
   await this.boardPage.navigateToBoard(this.boardUrl);
+  // navigateToBoard already uses domcontentloaded internally — no extra wait needed
 
   const url = this.page.url();
   if (url.includes('login')) {

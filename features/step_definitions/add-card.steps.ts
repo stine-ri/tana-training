@@ -2,7 +2,7 @@ import { When, Then, setDefaultTimeout } from '@cucumber/cucumber';
 import * as fs from 'fs';
 import * as path from 'path';
 
-setDefaultTimeout(60 * 1000); // 60 seconds - increase if you have a slow connection or Trello is being laggy
+setDefaultTimeout(120 * 1000); // 120 seconds - increase if you have a slow connection or Trello is being laggy
 
 When('I send a POST request to add a card with name {string}', async function (cardName: string) {
   try {

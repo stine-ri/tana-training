@@ -28,7 +28,7 @@ export default defineConfig({
     trace: 'on',                // full trace viewer
     video: 'on',                // video recording of every test
 
-    launchOptions: { slowMo: 500 },
+    launchOptions: { slowMo: process.env.CI ? 0 : 500 },
     // Reduced from 1000ms to 500ms — fast enough to see what's happening
     // but not so slow that tests take forever
   },
