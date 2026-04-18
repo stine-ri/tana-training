@@ -6,7 +6,7 @@ test.describe('Invicti - Get a Demo page', () => {
     // Navigate to the Invicti Get a Demo page
     await page.goto('https://www.invicti.com/get-demo');
 
-    // ── STEP 1: Work Email ──────────────────────────────────────────────
+    // STEP 1: Work Email 
 
     // Fill in the Work Email field
     await page.getByRole('textbox', { name: 'Work Email*' }).fill('christine.nyambwari@invicti.com');
@@ -17,7 +17,7 @@ test.describe('Invicti - Get a Demo page', () => {
     // Click Next to proceed to step 2
     await page.getByRole('link', { name: 'Next →' }).click();
 
-    // ── STEP 2: First Name, Last Name, Company ──────────────────────────
+    // STEP 2: First Name, Last Name, Company 
 
     // Fill in the First Name field
     await page.getByRole('textbox', { name: 'First Name*' }).fill('Christine');
@@ -40,7 +40,7 @@ test.describe('Invicti - Get a Demo page', () => {
     // Click Next to proceed to step 3
     await page.getByRole('link', { name: 'Next →' }).click();
 
-    // ── STEP 3: Telephone + checkbox ───────────────────────────────────
+    //  STEP 3: Telephone + checkbox 
 
     // Fill in the Telephone field
     await page.getByRole('textbox', { name: 'Telephone*' }).fill('254705912632');
